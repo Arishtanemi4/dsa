@@ -1,129 +1,156 @@
 import numpy as np
 
-class LinkedList:
+class Node:
     def __init__(self, value):
         self.data = value
         self.next = None
 
-    @staticmethod
-    def generate(node_range):
-        node = []
-        for i in range(node_range):
-            node.append(LinkedList(round(np.random.rand(), 3)))
-            if i > 0:
-                node[i-1].next = node[i]
-        return node
+class LinkedList:
+    def __init__(self):
+        self.head = None
 
-    @staticmethod
-    def traverse(head):
-        currentNode = head
-        while currentNode:
-            print(currentNode.data, end= " => ")
-            currentNode = currentNode.next
-        print("Null")
-    
-    @staticmethod
-    def find_lowest(head):
-        currentNode = head
-        lowest = head.data
-        while currentNode:
-            if currentNode.data < lowest:
-                lowest = currentNode.data
-            currentNode = currentNode.next
+    def generate(self, node_range):
+        for _ in range(node_range):
+            new_val = round(np.random.rand(), 3)  # prepend for O(1) efficiency
+            self.insert_at_head(new_val)  # insert at head
+
+    def insert_at_head(self, value):
+        new_node = Node(value)  # create new node
+        new_node.next = self.head  # point new node to current head
+        self.head = new_node  # update head to new node
+
+    def insert(self, value, position):
+        """
+        Inserts a value at a specific index
+        0-based indexing is used.
+        """
+        new_node = Node(value)  # create new node
+        
+        if position <= 0 or not self.head:  # insert at head if position is 0 or list is empty
+            self.insert_at_head(value)
+            return
+
+        current = self.head  # start from head
+        count = 0  # position counter
+
+        while current.next and count < position - 1:  # Traverse to the node just before the insertion point
+            current = current.next  # move to next node
+            count += 1  # increment position counter
+        
+        new_node.next = current.next  # point new node to the next node
+        current.next = new_node  # link current node to new node
+
+    def delete_by_value(self, target_value):
+        """
+        Deletes the first node found with the matching value.
+        """
+        if not self.head:  # empty list
+            return
+
+        if self.head.data == target_value:  # if head needs to be deleted
+            self.head = self.head.next  # update head to next node
+            return
+
+        current = self.head  # start from head
+        while current.next:  # traverse the list
+            if current.next.data == target_value:  # find the target value
+                current.next = current.next.next  # bypass the node to delete
+                return
+            current = current.next  # move to next node
+
+    def find_lowest(self):
+        """
+        Returns the minimum value in the list
+        """
+        if not self.head:  # empty list
+            return None
+        
+        lowest = self.head.data  # initialize lowest with head data
+        current = self.head.next  # start from second node
+        while current:  # traverse the list
+            if current.data < lowest:  # check for lowest value
+                lowest = current.data  # update lowest
+            current = current.next  # move to next node
         return lowest
 
-    @staticmethod
-    def delete_node(head, node_to_delete):
-        if head == node_to_delete:
-            return head.next
-        
-        currentNode = head
-        while currentNode:
-            if currentNode.next == node_to_delete:
-                currentNode.next = node_to_delete.next
-                return head
-            currentNode = currentNode.next
-        
-        return head
-    
-    @staticmethod
-    def insert_node(head, new_node, position):
-        if position == 0:
-            new_node.next = head
-            return new_node
-        
-        currentNode = head
-        currentPosition = 0
-        
-        while currentNode and currentPosition < position - 1:
-            currentNode = currentNode.next
-            currentPosition += 1
-        
-        if currentNode is None:
-            return head
-        
-        new_node.next = currentNode.next
-        currentNode.next = new_node
-        
-        return head
-    
-    @staticmethod
-    def length(head):
-        currentNode = head
-        count = 0
-        while currentNode:
-            count += 1
-            currentNode = currentNode.next
+    def traverse(self):
+        """
+        Prints the list visually
+        """
+        current = self.head  # start from head
+        while current:  # traverse the list
+            print(current.data, end=" => ")  # print current node data
+            current = current.next  # move to next node
+        print("None")
+
+    def __len__(self):
+        """
+        Allows use of len(linked_list_instance)
+        """
+        count = 0  # initialize count
+        current = self.head  # start from head
+        while current:  # traverse the list
+            count += 1  # increment count
+            current = current.next  # move to next node
         return count
+
 
 class DoubleLinkedList:
     def __init__(self, value):
         self.data = value
-        self.next = None
-        self.prev = None
+        self.next = None  # pointer to next node
+        self.prev = None  # pointer to previous node
 
     @staticmethod
     def generate(node_range):
-        node = []
+        node = []  # list to hold nodes
         for i in range(node_range):
             node.append(DoubleLinkedList(round(np.random.rand(), 3)))
             if i > 0:
-                node[i-1].next = node[i]
-                node[i].prev = node[i-1]
+                node[i-1].next = node[i]  # link previous node to next node
+                node[i].prev = node[i-1]  # link next node to previous node
         return node
 
     @staticmethod
     def traverse(head):
-        currentNode = head
-        while currentNode:
-            print(currentNode.data, end= " <=> ")
-            currentNode = currentNode.next
+        currentNode = head  # start from head
+        while currentNode:  # traverse the list
+            print(currentNode.data, end= " <=> ")  # print current node data
+            currentNode = currentNode.next  # move to next node
+        print("Null")
+    
+    @staticmethod
+    def reverse_traverse(tail):  # traverse from tail to head
+        currentNode = tail  # start from tail
+        while currentNode:  # traverse the list
+            print(currentNode.data, end= " <=> ")  # print current node data
+            currentNode = currentNode.prev  # move to previous node
         print("Null")
 
     @staticmethod
     def find_lowest(head):
-        currentNode = head
-        lowest = head.data
-        while currentNode:
-            if currentNode.data < lowest:
-                lowest = currentNode.data
-            currentNode = currentNode.next
+        currentNode = head  # start from head
+        lowest = head.data  # initialize lowest with head data
+        while currentNode:  # traverse the list
+            if currentNode.data < lowest:  # check for lowest value
+                lowest = currentNode.data  # update lowest
+            currentNode = currentNode.next  # move to next node
         return lowest
     
     @staticmethod
     def delete_node(head, node_to_delete):
-        if head == node_to_delete:
-            return head.next
-        
-        currentNode = head
-        while currentNode:
-            if currentNode == node_to_delete:
-                if currentNode.prev:
-                    currentNode.prev.next = currentNode.next
-                if currentNode.next:
-                    currentNode.next.prev = currentNode.prev
+        if head == node_to_delete:  # if head is the node to delete
+            return head.next  # return new head
+
+        currentNode = head  # start from head
+        while currentNode:  # traverse the list
+            if currentNode == node_to_delete:  # find the node to delete
+                if currentNode.prev:  # link previous node to next node
+                    currentNode.prev.next = currentNode.next  # bypass the node to delete
+                if currentNode.next:  # link next node to previous node
+                    currentNode.next.prev = currentNode.prev  # bypass the node to delete
                 return head
-            currentNode = currentNode.next
+            currentNode = currentNode.next  # move to next node
         
         return head
     
@@ -249,36 +276,35 @@ class CircularLinkedList:
         return count
 
 class OpsLinkedList:
+    @staticmethod
     def linked_list_ops():
-        # Generate LinkedList
-        node = LinkedList.generate(node_range=10)
+        linked_list = LinkedList()
+        linked_list.generate(10)
 
-        print("Node 1 is: ", node[1])
+        # Traverse
+        print("Initial Linked List:")
+        linked_list.traverse()
 
-        # Traverse LinkedList
-        for i in range(len(node)):
-            LinkedList.traverse(node[i])
+        # Lowest
+        lowest_value = linked_list.find_lowest()  # Find lowest value
+        print(f"Lowest value in the linked list is: {lowest_value}")
 
-        # Find lowest value in LinkedList
-        lowest_value = LinkedList.find_lowest(node[0])
-        print("Lowest value in the linked list is:", lowest_value)
+        # Delete
+        val_to_delete = lowest_value  # Delete the node with the lowest value
+        print(f"Deleting node with value: {val_to_delete}")
+        linked_list.delete_by_value(val_to_delete)
+        linked_list.traverse()
 
-        # Delete a node from LinkedList
-        node_to_delete = node[3]
-        print("Deleting node with value:", node_to_delete.data)
-        head_after_deletion = LinkedList.delete_node(node[0], node_to_delete)
-        LinkedList.traverse(head_after_deletion)
+        # Insert
+        new_val = round(np.random.rand(), 3)  # Insert a new random value
+        print(f"Inserting {new_val} at position 5")
+        linked_list.insert(new_val, 5)
+        linked_list.traverse()
 
-        # Insert a new node into LinkedList
-        new_node = LinkedList(0.123)
-        head_after_insertion = LinkedList.insert_node(node[0], new_node, 5)
-        LinkedList.traverse(head_after_insertion)
+        # Length
+        print(f"Length of the linked list is: {len(linked_list)}")
 
-        # Calculate length of LinkedList
-        length_of_list = LinkedList.length(node[0])
-        print("Length of the linked list is:", length_of_list)
-
-
+    @staticmethod
     def double_linked_list_ops():
         # Generate DoubleLinkedList
         node = DoubleLinkedList.generate(node_range=10)
@@ -300,7 +326,7 @@ class OpsLinkedList:
         DoubleLinkedList.traverse(head_after_deletion)
 
         # Insert a new node into DoubleLinkedList
-        new_node = DoubleLinkedList(0.456)
+        new_node = DoubleLinkedList(round(np.random.rand(), 3))
         head_after_insertion = DoubleLinkedList.insert_node(node[0], new_node, 5)
         DoubleLinkedList.traverse(head_after_insertion)
 
@@ -308,7 +334,7 @@ class OpsLinkedList:
         length_of_list = DoubleLinkedList.length(node[0])
         print("Length of the double linked list is:", length_of_list)
 
-
+    @staticmethod
     def circular_linked_list_ops():
         # Generate CircularLinkedList
         node = CircularLinkedList.generate(node_range=10)
@@ -330,7 +356,7 @@ class OpsLinkedList:
         CircularLinkedList.traverse(head_after_deletion)
 
         # Insert a new node into CircularLinkedList
-        new_node = CircularLinkedList(0.789)
+        new_node = CircularLinkedList(round(np.random.rand(), 3))
         head_after_insertion = CircularLinkedList.insert_node(node[0], new_node, 5)
         CircularLinkedList.traverse(head_after_insertion)
 
@@ -339,7 +365,7 @@ class OpsLinkedList:
         print("Length of the circular linked list is:", length_of_list)
 
 if __name__ == "__main__":
-    # OpsLinkedList.linked_list_ops()
+    OpsLinkedList.linked_list_ops()
     # OpsLinkedList.double_linked_list_ops()
-    OpsLinkedList.circular_linked_list_ops()
+    # OpsLinkedList.circular_linked_list_ops()
 
